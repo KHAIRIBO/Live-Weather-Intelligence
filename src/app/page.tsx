@@ -12,6 +12,7 @@ import { MetricsGrid } from '@/components/MetricsGrid';
 import { CityMap } from '@/components/CityMap';
 import { WeatherCanvas } from '@/components/WeatherCanvas';
 import { MetricDetailModal, MetricType } from '@/components/MetricDetailModal';
+import { CommentsSection } from '@/components/CommentsSection';
 import { Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 const DEFAULT_CITY: LocationSearchResult = {
@@ -196,6 +197,12 @@ export default function WeatherPage() {
 
               {/* City Map Component */}
               <CityMap location={weatherData.location} />
+
+              {/* Community Comments */}
+              <CommentsSection
+                currentCity={weatherData.location.name}
+                currentCountry={weatherData.location.country || null}
+              />
             </div>
           )}
         </main>
@@ -214,7 +221,14 @@ export default function WeatherPage() {
             <p className="flex items-center gap-1.5 font-medium text-slate-300">
               <span>SkyPulse Weather 🌤️</span>
               <span>•</span>
-              <span className="text-sky-300 font-bold">Created by Khairi Bouzakher</span>
+              <a
+                href="https://khairibouzakher.studio/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-300 hover:text-sky-200 transition-colors font-bold hover:underline"
+              >
+                Created by Khairi Bouzakher
+              </a>
             </p>
             <p className="text-slate-400">
               Powered by Open-Meteo Free Weather & Air Quality API.

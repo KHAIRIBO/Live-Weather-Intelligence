@@ -42,9 +42,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
               <span>Live Weather Intelligence</span>
               <span className="text-slate-600">•</span>
-              <span className="text-sky-300 font-semibold flex items-center gap-1">
+              <a
+                href="https://khairibouzakher.studio/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-300 hover:text-sky-200 transition-colors font-semibold flex items-center gap-1 hover:underline"
+              >
                 <User className="w-3 h-3 text-amber-400" /> By Khairi Bouzakher
-              </span>
+              </a>
             </p>
           </div>
         </div>

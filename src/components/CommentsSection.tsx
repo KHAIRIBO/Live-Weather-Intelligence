@@ -24,12 +24,13 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ currentCity, c
   const [filterMode, setFilterMode] = useState<'all' | 'current'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+    setFetchError(null);
     try {
       const url = filterMode === 'current' 
         ? `/api/comments?city=${encodeURIComponent(currentCity)}`
@@ -42,7 +43,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ currentCity, c
       setComments(data);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Something went wrong while fetching comments.');
+      setFetchError(err.message || 'Something went wrong while fetching comments.');
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +58,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ currentCity, c
     if (!name.trim() || !text.trim()) return;
 
     setIsSubmitting(true);
-    setError(null);
+    setSubmitError(null);
     setSuccess(false);
 
     try {
@@ -74,21 +75,21 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ currentCity, c
         }),
       });
 
+      // Always parse JSON first so we can read error details
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Failed to submit comment');
+        throw new Error(responseData.error || responseData.details || 'Failed to submit comment');
       }
 
-      // Clear input and reload comments
+      // Success — clear form and refresh comments list
       setText('');
       setSuccess(true);
       fetchComments();
-
-      // Reset success status after 3 seconds
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => setSuccess(false), 4000);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to post comment.');
+      console.error('Submit error:', err);
+      setSubmitError(err.message || 'Failed to post comment.');
     } finally {
       setIsSubmitting(false);
     }
@@ -216,9 +217,9 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ currentCity, c
             </div>
 
             {/* Status alerts */}
-            {error && (
+            {submitError && (
               <div className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-2 rounded-xl">
-                {error}
+                ❌ {submitError}
               </div>
             )}
             {success && (
@@ -267,6 +268,17 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ currentCity, c
             <div className="flex-1 flex flex-col items-center justify-center text-slate-400 gap-2">
               <Loader2 className="w-8 h-8 animate-spin text-sky-400" />
               <p className="text-xs">Loading comments...</p>
+            </div>
+          ) : fetchError ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 border border-dashed border-rose-500/20 rounded-2xl p-6 text-center">
+              <p className="text-sm font-semibold text-rose-400">Failed to load comments</p>
+              <p className="text-xs text-rose-400/70">{fetchError}</p>
+              <button
+                onClick={fetchComments}
+                className="text-xs px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:text-white hover:bg-rose-500/20 transition-all"
+              >
+                Retry
+              </button>
             </div>
           ) : comments.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-slate-500 gap-3 border border-dashed border-white/10 rounded-2xl p-6 text-center">

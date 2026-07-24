@@ -1,55 +1,57 @@
 import { Pool } from 'pg';
 
-let pool: Pool;
+declare global {
+  // eslint-disable-next-line no-var
+  var _pgPool: Pool | undefined;
+}
 
-const connectionString = process.env.DATABASE_URL;
-
-if (process.env.NODE_ENV === 'production') {
-  pool = new Pool({
+function createPool(): Pool {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set.');
+  }
+  return new Pool({
     connectionString,
     ssl: {
       rejectUnauthorized: false,
     },
+    // Keep connections alive
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
   });
-} else {
-  // Prevent multiple pools during development hot reloads
-  if (!(global as any)._pgPool) {
-    (global as any)._pgPool = new Pool({
-      connectionString,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    });
-  }
-  pool = (global as any)._pgPool;
 }
 
-export const db = pool;
+// Singleton pool — reuse across hot reloads in dev, new pool per process in prod
+export const db: Pool =
+  process.env.NODE_ENV === 'production'
+    ? createPool()
+    : (global._pgPool ??= createPool());
 
-// Automatically initialize comments table if it does not exist
-export async function initDb() {
+// Auto-create the comments table on first connection
+export async function initDb(): Promise<void> {
+  const client = await db.connect();
   try {
-    const client = await pool.connect();
-    try {
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS weather_comments (
-          id SERIAL PRIMARY KEY,
-          name VARCHAR(100) NOT NULL,
-          comment TEXT NOT NULL,
-          city VARCHAR(100) NOT NULL,
-          country VARCHAR(100),
-          created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-      console.log('✅ PostgreSQL Comments table verified/created.');
-    } finally {
-      client.release();
-    }
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS weather_comments (
+        id         SERIAL PRIMARY KEY,
+        name       VARCHAR(100)     NOT NULL,
+        comment    TEXT             NOT NULL,
+        city       VARCHAR(100)     NOT NULL,
+        country    VARCHAR(100),
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ weather_comments table ready.');
   } catch (error: any) {
-    if (error.message && (error.message.includes('read-only') || error.message.includes('read_only'))) {
-      console.warn('⚠️ Database connection is in read-only mode. Skipping table initialization. (This is normal for Netlify preview branches or database replicas)');
+    const msg: string = error?.message ?? '';
+    if (msg.includes('read-only') || msg.includes('read_only')) {
+      console.warn('⚠️ DB is read-only — skipping table creation (expected on Netlify preview branches).');
     } else {
-      console.error('❌ Failed to initialize database comments table:', error);
+      // Re-throw so the caller knows init failed
+      throw error;
     }
+  } finally {
+    client.release();
   }
 }

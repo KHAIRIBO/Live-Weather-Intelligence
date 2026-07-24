@@ -107,7 +107,7 @@ npm install
 npm run dev
 ```
 
-Open your browser at **[http://localhost:3000](http://localhost:3000)** 🎉
+Open your browser at **https://liveweatherai.netlify.app/** 🎉
 
 ### Build for Production
 

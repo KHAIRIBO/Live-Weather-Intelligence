@@ -76,9 +76,15 @@ export async function POST(request: Request) {
     return NextResponse.json(newComment, { status: 201 });
   } catch (error: any) {
     console.error('Error creating comment:', error);
+    const isReadOnly = error.message && (error.message.includes('read-only') || error.message.includes('read_only'));
     return NextResponse.json(
-      { error: 'Failed to submit comment', details: error.message },
-      { status: 500 }
+      { 
+        error: isReadOnly 
+          ? 'Cannot submit comments: The database is currently in read-only mode (common for local dev, Netlify preview branches, or database replicas).' 
+          : 'Failed to submit comment', 
+        details: error.message 
+      },
+      { status: isReadOnly ? 403 : 500 }
     );
   }
 }

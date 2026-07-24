@@ -45,7 +45,11 @@ export async function initDb() {
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error('❌ Failed to initialize database comments table:', error);
+  } catch (error: any) {
+    if (error.message && (error.message.includes('read-only') || error.message.includes('read_only'))) {
+      console.warn('⚠️ Database connection is in read-only mode. Skipping table initialization. (This is normal for Netlify preview branches or database replicas)');
+    } else {
+      console.error('❌ Failed to initialize database comments table:', error);
+    }
   }
 }

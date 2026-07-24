@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { TemperatureUnit, LocationSearchResult } from '@/types/weather';
-import { CloudSun, Navigation, Sparkles, User } from 'lucide-react';
+import { Navigation, User } from 'lucide-react';
 
 interface NavbarProps {
   unit: TemperatureUnit;
@@ -32,12 +33,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand & Author */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-amber-500 to-sky-500 shadow-lg shadow-sky-500/20 text-white animate-pulse">
-            <CloudSun className="w-6 h-6" />
+          <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-lg shadow-sky-500/25 ring-1 ring-white/10">
+            <Image
+              src="/icon.png"
+              alt="LiveWeatherAI logo"
+              width={44}
+              height={44}
+              className="object-cover w-full h-full"
+              priority
+            />
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              SkyPulse <span className="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 font-medium">v2.0</span>
+              LiveWeatherAI <span className="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 font-medium">AI</span>
             </h1>
             <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
               <span>Live Weather Intelligence</span>

@@ -9,7 +9,7 @@ interface SearchBarProps {
   onSelectCity: (city: LocationSearchResult) => void;
 }
 
-const HISTORY_KEY = 'skypulse_search_history';
+const HISTORY_KEY = 'liveweatherai_search_history';
 
 export const SearchBar: React.FC<SearchBarProps> = ({ onSelectCity }) => {
   const [query, setQuery] = useState('');

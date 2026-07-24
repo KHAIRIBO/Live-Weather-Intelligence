@@ -219,7 +219,7 @@ export default function WeatherPage() {
         <footer className="w-full border-t border-white/10 py-6 px-4 text-center text-xs text-slate-400 backdrop-blur-md bg-slate-950/40">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="flex items-center gap-1.5 font-medium text-slate-300">
-              <span>SkyPulse Weather 🌤️</span>
+              <span>LiveWeatherAI 🌤️</span>
               <span>•</span>
               <a
                 href="https://khairibouzakher.studio/"

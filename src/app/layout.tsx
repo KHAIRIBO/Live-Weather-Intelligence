@@ -15,18 +15,26 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'SkyPulse Weather 🌤️ | Created by Khairi Bouzakher',
+  title: 'LiveWeatherAI 🌤️ | Created by Khairi Bouzakher',
   description:
-    'Real-time weather application created by Khairi Bouzakher. Displays current temperature, 24-hour hourly forecast, 7-day outlook, air quality index (AQI), wind compass, humidity, UV index, and interactive particle weather effects.',
+    'LiveWeatherAI — Real-time weather intelligence created by Khairi Bouzakher. Displays current temperature, 24-hour hourly forecast, 7-day outlook, air quality index (AQI), wind compass, humidity, UV index, interactive maps, community comments, and ambient weather particle effects.',
   keywords: [
     'weather app',
+    'live weather',
     'live temperature',
     'city weather search',
     'open-meteo api',
     'air quality index',
     'hourly forecast',
     '7-day weather outlook',
+    'AI weather',
+    'LiveWeatherAI',
+    'Khairi Bouzakher',
   ],
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({

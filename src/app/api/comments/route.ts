@@ -1,31 +1,17 @@
 import { NextResponse } from 'next/server';
-import { db, initDb } from '@/lib/db';
-
-// Initialize DB once when the module first loads (server-side)
-const dbReadyPromise: Promise<void> = initDb().catch((err) => {
-  console.error('DB init error:', err.message);
-});
+import { db } from '@/lib/db';
 
 // GET: Fetch all comments (optionally filtered by ?city=CityName)
 export async function GET(request: Request) {
   try {
-    await dbReadyPromise;
-
     const { searchParams } = new URL(request.url);
     const city = searchParams.get('city');
 
-    let query = 'SELECT * FROM weather_comments';
-    const params: string[] = [];
+    const rows = city
+      ? await db.sql`SELECT * FROM weather_comments WHERE city = ${city} ORDER BY created_at DESC LIMIT 100`
+      : await db.sql`SELECT * FROM weather_comments ORDER BY created_at DESC LIMIT 100`;
 
-    if (city) {
-      query += ' WHERE city = $1';
-      params.push(city);
-    }
-
-    query += ' ORDER BY created_at DESC LIMIT 100';
-
-    const result = await db.query(query, params);
-    return NextResponse.json(result.rows);
+    return NextResponse.json(rows);
   } catch (error: any) {
     console.error('Error fetching comments:', error);
     return NextResponse.json(
@@ -59,22 +45,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Wait for DB to be ready (no-op if already initialized)
-    await dbReadyPromise;
-
     const trimmedName    = name.trim().substring(0, 100);
     const trimmedComment = comment.trim().substring(0, 1000);
     const trimmedCity    = city.trim().substring(0, 100);
     const trimmedCountry = country ? String(country).trim().substring(0, 100) : null;
 
-    const result = await db.query(
-      `INSERT INTO weather_comments (name, comment, city, country)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
-      [trimmedName, trimmedComment, trimmedCity, trimmedCountry]
-    );
+    const [inserted] = await db.sql`
+      INSERT INTO weather_comments (name, comment, city, country)
+      VALUES (${trimmedName}, ${trimmedComment}, ${trimmedCity}, ${trimmedCountry})
+      RETURNING *
+    `;
 
-    return NextResponse.json(result.rows[0], { status: 201 });
+    return NextResponse.json(inserted, { status: 201 });
   } catch (error: any) {
     console.error('Error creating comment:', error);
     const isReadOnly =

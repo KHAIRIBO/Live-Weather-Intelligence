@@ -27,6 +27,12 @@
 </p>
 
 <p align="center">
+  <a href="https://liveweatherai.netlify.app/" target="_blank">
+    <strong>🌐 Open Live Web Application: https://liveweatherai.netlify.app/</strong>
+  </a>
+</p>
+
+<p align="center">
   <img src="./public/preview.png" alt="SkyPulse Weather App Screenshot" width="800"/>
 </p>
 
